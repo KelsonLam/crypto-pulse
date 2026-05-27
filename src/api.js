@@ -69,3 +69,55 @@ export async function fetchMarketChart(coinId, currency, days = 7) {
   );
   return Array.isArray(data.prices) ? data.prices : [];
 }
+
+// Fetch global market figures such as the total market capitalisation,
+// total trading volume, and Bitcoin's share of the market.
+export async function fetchGlobal() {
+  const data = await request("/global");
+  return data && data.data ? data.data : null;
+}
+
+// Fetch the coins that are trending in search over the past day.
+// The response nests each coin under an "item" key.
+export async function fetchTrending() {
+  const data = await request("/search/trending");
+  const coins = Array.isArray(data.coins) ? data.coins : [];
+  return coins.map((entry) => entry.item).filter(Boolean);
+}
+
+// Fetch fuller information for a single coin, used to show the
+// community sentiment figures in the detail view. This is a heavier
+// response, so it is only requested when a coin is opened.
+export async function fetchCoinInfo(coinId) {
+  const params = new URLSearchParams({
+    localization: "false",
+    tickers: "false",
+    market_data: "false",
+    community_data: "false",
+    developer_data: "false",
+    sparkline: "false",
+  });
+  return request(`/coins/${coinId}?${params.toString()}`);
+}
+
+// Fetch the Fear and Greed index from Alternative.me. This is a separate,
+// keyless service, so it uses its own URL rather than the CoinGecko base.
+// It returns a value from 0 to 100 with a short classification.
+export async function fetchFearGreed() {
+  let response;
+  try {
+    response = await fetch("https://api.alternative.me/fng/?limit=1");
+  } catch (networkError) {
+    throw new ApiError("Could not reach the Fear and Greed service.", 0);
+  }
+  if (!response.ok) {
+    throw new ApiError("Could not load the Fear and Greed index.", response.status);
+  }
+  const data = await response.json();
+  const entry = Array.isArray(data.data) ? data.data[0] : null;
+  if (!entry) return null;
+  return {
+    value: Number(entry.value),
+    label: entry.value_classification,
+  };
+}
