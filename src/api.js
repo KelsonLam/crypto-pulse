@@ -121,3 +121,26 @@ export async function fetchFearGreed() {
     label: entry.value_classification,
   };
 }
+
+// Fetch recent cryptocurrency news headlines from CryptoCompare. This is a
+// separate, keyless service, so it has its own URL. We return only the few
+// fields the ticker needs: a title, a link, and the source name.
+export async function fetchNews(limit = 14) {
+  let response;
+  try {
+    response = await fetch("https://min-api.cryptocompare.com/data/v2/news/?lang=EN");
+  } catch (networkError) {
+    throw new ApiError("Could not reach the news service.", 0);
+  }
+  if (!response.ok) {
+    throw new ApiError("Could not load the news feed.", response.status);
+  }
+  const data = await response.json();
+  const items = Array.isArray(data.Data) ? data.Data : [];
+  return items.slice(0, limit).map((article) => ({
+    id: article.id,
+    title: article.title,
+    url: article.url,
+    source: (article.source_info && article.source_info.name) || article.source || "",
+  }));
+}

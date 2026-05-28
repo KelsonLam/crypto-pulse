@@ -25,6 +25,7 @@ export default function Compare({ coins, onClose }) {
   const [days, setDays] = useState(30);
   const [series, setSeries] = useState({});
   const [status, setStatus] = useState("loading");
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     function onKey(event) {
@@ -60,7 +61,7 @@ export default function Compare({ coins, onClose }) {
     return () => {
       active = false;
     };
-  }, [selected, days]);
+  }, [selected, days, reloadKey]);
 
   function toggleCoin(id) {
     setSelected((current) => {
@@ -179,8 +180,20 @@ export default function Compare({ coins, onClose }) {
 
         <div className="modal__chart">
           {status === "loading" && <div className="chart chart--empty">Loading comparison...</div>}
-          {status !== "loading" && !chart && (
+          {status !== "loading" && !chart && selected.length === 0 && (
             <div className="chart chart--empty">Select at least one coin to compare.</div>
+          )}
+          {status !== "loading" && !chart && selected.length > 0 && (
+            <div className="chart chart--empty chart--message">
+              <p>
+                We could not load the price data just now. The free CoinGecko API
+                limits how often it can be called, so please wait a few seconds and
+                try again.
+              </p>
+              <button className="refresh-button" onClick={() => setReloadKey((key) => key + 1)}>
+                Try again
+              </button>
+            </div>
           )}
           {status !== "loading" && chart && (
             <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} className="chart__svg" role="img" aria-label="Performance comparison">

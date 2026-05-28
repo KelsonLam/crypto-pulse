@@ -8,6 +8,7 @@ import MarketOverview from "./components/MarketOverview.jsx";
 import Portfolio from "./components/Portfolio.jsx";
 import Compare from "./components/Compare.jsx";
 import AlertsPanel from "./components/AlertsPanel.jsx";
+import NewsTicker from "./components/NewsTicker.jsx";
 
 const CURRENCIES = [
   { code: "usd", label: "USD" },
@@ -246,6 +247,8 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      <NewsTicker />
 
       <MarketOverview currency={currency} onSelectTrending={handleTrending} />
 

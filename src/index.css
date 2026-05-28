@@ -35,6 +35,29 @@
   opacity: 0.5;
 }
 
+/* Several panels use a translucent dark background by default. In light mode
+   those are replaced with solid light surfaces so text stays readable. */
+:root[data-theme="light"] .table-card,
+:root[data-theme="light"] .overview,
+:root[data-theme="light"] .ticker {
+  background: var(--surface);
+}
+
+:root[data-theme="light"] .coin-table td,
+:root[data-theme="light"] .portfolio__row,
+:root[data-theme="light"] .alerts__row {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+:root[data-theme="light"] .coin-row:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .skeleton-row {
+  background: linear-gradient(90deg, #e7edf7 25%, #dbe3f1 37%, #e7edf7 63%);
+  background-size: 400% 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1015,6 +1038,82 @@ body {
   color: var(--down);
 }
 
+/* News headline ticker */
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, rgba(22, 30, 54, 0.7), rgba(16, 22, 42, 0.7));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ticker__tag {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #06210f;
+  background: linear-gradient(135deg, var(--accent), #34d399);
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.ticker__viewport {
+  flex: 1;
+  overflow: hidden;
+}
+
+.ticker__track {
+  display: inline-flex;
+  gap: 38px;
+  white-space: nowrap;
+  animation: ticker-scroll 70s linear infinite;
+}
+
+.ticker:hover .ticker__track {
+  animation-play-state: paused;
+}
+
+.ticker__item {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
+
+.ticker__item:hover {
+  color: var(--accent);
+}
+
+.ticker__source {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.76rem;
+  margin-right: 8px;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Respect users who prefer reduced motion by stopping the scroll. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker__track {
+    animation: none;
+  }
+}
+
 /* Fear and Greed gauge */
 .fng {
   display: flex;
@@ -1169,6 +1268,19 @@ body {
 /* Compare modal */
 .modal--wide {
   width: min(800px, 100%);
+}
+
+.chart--message {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+  padding: 24px;
+}
+
+.chart--message p {
+  margin: 0;
+  max-width: 440px;
 }
 
 .compare__hint {
