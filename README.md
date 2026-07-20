@@ -1,5 +1,9 @@
 # Crypto Pulse
 
+Live: https://kelsonlam.github.io/crypto-pulse/
+
+![Crypto Pulse: a sortable market table with live prices, sparklines, a fear and greed gauge, and trending coins](docs/media/screenshot.png)
+
 Crypto Pulse is a live cryptocurrency market tracker built with React. It presents the leading cryptocurrencies by market capitalisation, shows how their prices have moved over the past day and week, and lets you open any coin to study its recent price history in more detail. The application draws all of its data from the CoinGecko public API, which does not require an API key, so the project runs straight away for anyone who clones it.
 
 ## Features
@@ -42,7 +46,7 @@ The build is written to the `dist` folder. You can preview that build locally wi
 
 ## Deployment to GitHub Pages
 
-This repository includes a GitHub Actions workflow at `.github/workflows/deploy.yml` that builds the project and publishes it to GitHub Pages automatically. To enable it, push the repository to GitHub, then open the repository Settings, choose Pages in the sidebar, and set the source to GitHub Actions. Every push to the `main` branch will then build and deploy the site, and the published address will appear in the Actions tab once the run completes. You can also trigger a deployment by hand from that same tab.
+The live site above is built and published automatically by the GitHub Actions workflow at `.github/workflows/deploy.yml`. Every push to `main` rebuilds and redeploys it; a deployment can also be triggered by hand from the repository's Actions tab.
 
 The Vite configuration uses a relative base path, so the site works correctly whether it is served from the root of a domain or from a project subdirectory such as `your-username.github.io/crypto-pulse/`.
 
