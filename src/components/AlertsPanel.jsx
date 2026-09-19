@@ -45,11 +45,11 @@ export default function AlertsPanel({ alerts, currency, onRemove, onClear, onClo
                   <div className="alerts__info">
                     <span className="coin-name__title">{alert.symbol}</span>
                     <span className="muted">
-                      when price is {alert.direction} {formatPrice(alert.target, currency)}
+                      when price is {alert.direction} {alert.currency ? formatPrice(alert.target, alert.currency) : `${alert.target} (currency unknown)`}
                     </span>
                   </div>
                   <span className={`alerts__state ${alert.triggered ? "is-done" : ""}`}>
-                    {alert.triggered ? "Triggered" : "Active"}
+                    {alert.triggered ? "Triggered" : !alert.currency ? "Recreate alert" : alert.currency !== currency ? `Switch to ${alert.currency.toUpperCase()} to monitor` : "Active"}
                   </span>
                   <button
                     className="portfolio__remove"

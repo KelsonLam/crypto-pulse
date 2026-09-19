@@ -14,6 +14,8 @@ You can search for any coin by its name or symbol, switch the display currency b
 
 The data refreshes automatically once a minute while the page is open, and you can request a manual refresh at any time. If the data service is unavailable or busy, the application explains the situation plainly rather than failing in silence.
 
+Price alerts keep the currency selected when you create them. An alert is monitored while that currency is selected and the page is open. Switch back to the alert's currency to resume monitoring. Older saved alerts without a recorded currency display "Recreate alert" so they cannot fire against prices in the wrong currency.
+
 ## Built with
 
 The project uses React for the interface and Vite for the development server and the production build. The charts are drawn as inline SVG with no charting library, which keeps the dependency list short and the bundle small. The styling is written in plain CSS.
@@ -43,6 +45,8 @@ npm run build
 ```
 
 The build is written to the `dist` folder. You can preview that build locally with `npm run preview`.
+
+Run `npm test` to check the price-alert logic. The deployment workflow runs these tests before building the site.
 
 ## Deployment to GitHub Pages
 

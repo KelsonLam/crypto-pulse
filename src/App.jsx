@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchMarkets } from "./api.js";
+import { isAlertReached } from "./alerts.js";
 import { formatPrice, formatCompact, formatPercent } from "./format.js";
 import { useLocalStorage } from "./useLocalStorage.js";
 import Sparkline from "./components/Sparkline.jsx";
@@ -20,6 +21,8 @@ const REFRESH_INTERVAL = 60 * 1000;
 
 export default function App() {
   const [coins, setCoins] = useState([]);
+  const [pricesCurrency, setPricesCurrency] = useState(null);
+  const requestId = useRef(0);
   const [status, setStatus] = useState("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [currency, setCurrency] = useState("usd");
@@ -48,14 +51,18 @@ export default function App() {
 
   const load = useCallback(
     async (showSpinner = true) => {
+      const currentRequest = ++requestId.current;
       if (showSpinner) setStatus("loading");
       try {
         const data = await fetchMarkets(currency, 50);
+        if (currentRequest !== requestId.current) return;
         setCoins(data);
+        setPricesCurrency(currency);
         setLastUpdated(new Date());
         setStatus("ready");
         setErrorMessage("");
       } catch (error) {
+        if (currentRequest !== requestId.current) return;
         setErrorMessage(error.message);
         setStatus("error");
       }
@@ -65,6 +72,7 @@ export default function App() {
 
   useEffect(() => {
     load(true);
+    return () => { requestId.current += 1; };
   }, [load]);
 
   useEffect(() => {
@@ -80,7 +88,7 @@ export default function App() {
 
   // Whenever fresh prices arrive, see if any active alert has been reached.
   useEffect(() => {
-    if (!coins.length) return;
+    if (!coins.length || pricesCurrency !== currency) return;
     const current = alertsRef.current;
     if (!current.length) return;
 
@@ -88,11 +96,7 @@ export default function App() {
     const next = current.map((alert) => {
       if (alert.triggered) return alert;
       const coin = coins.find((c) => c.id === alert.coinId);
-      if (!coin || typeof coin.current_price !== "number") return alert;
-      const reached =
-        alert.direction === "above"
-          ? coin.current_price >= alert.target
-          : coin.current_price <= alert.target;
+      const reached = isAlertReached(alert, coin, pricesCurrency);
       if (reached) {
         fired.push({ ...alert, price: coin.current_price });
         return { ...alert, triggered: true };
@@ -108,7 +112,7 @@ export default function App() {
         `${first.name} is now ${first.direction} ${formatPrice(first.target, currency)}.`
       );
     }
-  }, [coins, currency, setAlerts]);
+  }, [coins, currency, pricesCurrency, setAlerts]);
 
   // Clear the banner a few seconds after it appears.
   useEffect(() => {
@@ -149,6 +153,7 @@ export default function App() {
     }
     const alert = {
       ...partial,
+      currency,
       id: `${partial.coinId}-${Date.now()}`,
       triggered: false,
       createdAt: Date.now(),
@@ -239,7 +244,14 @@ export default function App() {
               <button
                 key={item.code}
                 className={`currency-switch__option ${currency === item.code ? "is-active" : ""}`}
-                onClick={() => setCurrency(item.code)}
+                onClick={() => {
+                  if (item.code === currency) return;
+                  requestId.current += 1;
+                  setCoins([]);
+                  setSelected(null);
+                  setStatus("loading");
+                  setCurrency(item.code);
+                }}
               >
                 {item.label}
               </button>
